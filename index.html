@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WaterControl</title>
+    <link rel="stylesheet" href="style.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+
+<body>
+
+    <div class="wrapper">
+        <span class="bg-animate"></span>
+        <span class="bg-animate2"></span>
+
+        <div class="form-box login">
+            <h2 class="animation" style="--i:0; --j:21;">CONNEXION</h2>
+            <form action="traitement_connexion.php" method="post">
+                <div class="input-box animation" style="--i:1; --j:22;">
+                    <input type="text" name="nom" required>
+                    <label>Nom d'utilisateur</label>
+                    <i class='bx bxs-user'></i>
+                </div>
+                <div class="input-box animation" style="--i:2; --j:23;">
+                    <input type="password" name="password" required>
+                    <label>Mot de passe</label>
+                    <i class='bx bxs-lock-alt'></i>
+                </div>
+                <button type="submit" class="btn animation" style="--i:3; --j:24;">Connexion</button>
+                <div class="logreg-link animation" style="--i:4; --j:25;">
+                    <p>N'avez-vous pas de compte ? <a href="#" class="register-link">Inscrivez-vous</a></p>
+                </div>
+            </form>
+        </div>
+        <div class="info-text login">
+            <h2 class="animation" style="--i:0; --j:20;">Bienvenue sur WaterControl!</h2>
+            <p class="animation" style="--i:1; --j:21;">Optimisez votre consommation.</p>
+        </div>
+
+        <div class="form-box register">
+            <h2 class="animation" style="--i:17; --j:0;">INSCRIPTION</h2>
+            <form action="traitement_inscription.php" method="post">
+                <div class="input-box animation" style="--i:18; --j:1;">
+                    <input type="text" name="nom" required>
+                    <label>Nom d'utilisateur</label>
+                    <i class='bx bxs-user'></i>
+                </div>
+              
+                <div class="input-box animation" style="--i:22; --j:5;">
+                    <input type="text" name="adresse" required>
+                    <label>Adresse</label>
+                    <i class='bx bxs-home'></i>
+                </div>
+                
+                <div class="input-box animation" style="--i:25; --j:8;">
+                    <input type="email" name="mail" required>
+                    <label>Email</label>
+                    <i class='bx bxs-envelope'></i>
+                </div>
+                <div class="input-box animation" style="--i:26; --j:9;">
+                    <input type="password" name="password" required>
+                    <label>Mot de passe</label>
+                    <i class='bx bxs-lock-alt'></i>
+                </div>
+                <div class="input-box animation" style="--i:26; --j:9;">
+                    <input type="password" name="confirmpass" required>
+                    <label>Confirmez votre mot de passe</label>
+                    <i class='bx bxs-lock-alt'></i>
+                </div>
+                <button type="submit" class="btn animation" style="--i:27; --j:10;">Inscription</button>
+                <div class="logreg-link animation" style="--i:28; --j:11;">
+                    <p>Disposez-vous déjà d'un compte? <a href="#" class="login-link">Connectez-vous</a></p>
+                </div>
+            </form>
+            
+        </div>
+        <div class="info-text register">
+            <h2 class="animation" style="--i:17; --j:0;">Bienvenue sur WaterControl!</h2>
+            <p class="animation" style="--i:18; --j:1;">Optimisez votre consommation.</p>
+        </div>
+    </div>
+
+
+    <script src="script.js"></script>
+</body>
+
+</html>
