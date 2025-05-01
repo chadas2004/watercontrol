@@ -45,16 +45,11 @@ try {
         exit;
     }
 
-    // Vérifie s'il y a déjà des utilisateurs
-    $check_sql = "SELECT COUNT(*) AS total FROM utilisateur";
-    $result = $conn->query($check_sql);
-    $data = $result->fetch(PDO::FETCH_ASSOC);
-    $is_first_user = ($data['total'] == 0);
+   
 
-    // Définir les valeurs selon si c'est le premier utilisateur
-    $role = $is_first_user ? 'admin' : 'user';
-    $can_set_seuil = $is_first_user ? 1 : 0;
-    $can_control_valve = $is_first_user ? 1 : 0;
+    // Définir les valeurs par défaut pour les utilisateur
+    $can_set_seuil = 1;
+    $can_control_valve = 1;
     $is_active = 1;
     $image = ''; // valeur par défaut
 
@@ -62,27 +57,24 @@ try {
     $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
     // Insertion du nouvel utilisateur avec rôles et permissions
-    $sql = "INSERT INTO utilisateur (nom, adresse, mail, password, image, role, can_set_seuil, can_control_valve, is_active)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO utilisateur (nom, adresse, mail, password, image, can_set_seuil, can_control_valve, is_active)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->execute([$nom, $adresse, $mail, $passwordHash, $image, $role, $can_set_seuil, $can_control_valve, $is_active]);
+    $stmt->execute([$nom, $adresse, $mail, $passwordHash, $image, $can_set_seuil, $can_control_valve, $is_active]);
 
     // Récupérer l'ID du nouvel utilisateur
     $utilisateur_id = $conn->lastInsertId();
     echo "Nouvel utilisateur ID : " . $utilisateur_id;
 
-    // Si c'est le premier utilisateur, insérer dans les tables `seuils` et `vanne_statut`
-    if ($is_first_user) {
-        // Insertion dans la table `seuils`
-        $seuil_defaut = 1000; // valeur par défaut du seuil
-        $stmt_seuil = $conn->prepare("INSERT INTO seuils (seuil, utilisateur_id) VALUES (?, ?)");
-        $stmt_seuil->execute([$seuil_defaut, $utilisateur_id]);
+    // Insertion dans la table seuils pour tous les utilisateurs
+    $seuil_defaut = 1000; // valeur par défaut du seuil
+    $stmt_seuil = $conn->prepare("INSERT INTO seuils (seuil, utilisateur_id) VALUES (?, ?)");
+    $stmt_seuil->execute([$seuil_defaut, $utilisateur_id]);
 
-        // Insertion dans la table `vanne_statut`
-        $vanne_statut = 1; // 1 = ouverte, 0 = fermée (selon ta logique)
-        $stmt_vanne = $conn->prepare("INSERT INTO vanne_statut (statut, utilisateur_id) VALUES (?, ?)");
-        $stmt_vanne->execute([$vanne_statut, $utilisateur_id]);
-    }
+    // Insertion dans la table vanne_statut pour tous les utilisateurs
+    $vanne_statut = 1; // 1 = ouverte, 0 = fermée (selon ta logique)
+    $stmt_vanne = $conn->prepare("INSERT INTO vanne_statut (statut, utilisateur_id) VALUES (?, ?)");
+    $stmt_vanne->execute([$vanne_statut, $utilisateur_id]);
 
     // Redirection après réussite
     echo "<script>

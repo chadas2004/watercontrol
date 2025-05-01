@@ -38,7 +38,7 @@ while ($row = $monthly_result->fetch_assoc()) {
 // Recherche utilisateur
 $search = isset($_GET['search']) ? $_GET['search'] : '';
 $search_condition = $search ? "AND (nom LIKE '%$search%' OR mail LIKE '%$search%')" : '';
-$users = $conn->query("SELECT id, nom, mail, role, can_set_seuil, can_control_valve, is_active FROM utilisateur WHERE role = 'user' $search_condition");
+$users = $conn->query("SELECT id, nom, mail,  can_set_seuil, can_control_valve, is_active FROM utilisateur $search_condition");
 ?>
 
 <!DOCTYPE html>
@@ -138,7 +138,7 @@ $users = $conn->query("SELECT id, nom, mail, role, can_set_seuil, can_control_va
 <div class="sidebar" id="sidebar">
     <h4><i class="fa fa-tint"></i> WaterControl</h4>
     <a href="dashboard_admin.php" class="active"><i class="fa fa-tachometer"></i> Tableau de bord</a>
-    <a href="users.php"><i class="fa fa-users"></i> Utilisateurs</a>
+    <a href="user.php"><i class="fa fa-users"></i> Utilisateurs</a>
     <a href="settings.php"><i class="fa fa-cogs"></i> Paramètres</a>
     <a href="logout.php"><i class="fa fa-sign-out"></i> Déconnexion</a>
 </div>
@@ -217,40 +217,40 @@ $users = $conn->query("SELECT id, nom, mail, role, can_set_seuil, can_control_va
         <div class="card p-3">
             <h5>Liste des utilisateurs</h5>
             <div class="table-responsive">
-                <table class="table table-bordered table-hover mt-3">
-                    <thead class="table-secondary">
-                        <tr>
-                            <th>Nom</th>
-                            <th>Email</th>
-                            <th>Rôle</th>
-                            <th>Peut définir seuil</th>
-                            <th>Peut contrôler vanne</th>
-                            <th>Statut</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php while ($u = $users->fetch_assoc()): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($u['nom']) ?></td>
-                                <td><?= htmlspecialchars($u['mail']) ?></td>
-                                <td><?= $u['role'] ?></td>
-                                <td><?= $u['can_set_seuil'] ? 'Oui' : 'Non' ?></td>
-                                <td><?= $u['can_control_valve'] ? 'Oui' : 'Non' ?></td>
-                                <td><?= $u['is_active'] ? '<span class="text-success">Actif</span>' : '<span class="text-danger">Inactif</span>' ?></td>
-                                <td>
-                                    <a href="edit_user.php?id=<?= $u['id'] ?>" class="btn btn-sm btn-warning">Modifier</a>
-                                    <a href="delete_user.php?id=<?= $u['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer cet utilisateur ?')">Supprimer</a>
-                                    <?php if ($u['is_active']): ?>
-                                        <a href="toggle_user.php?id=<?= $u['id'] ?>&action=deactivate" class="btn btn-sm btn-secondary">Désactiver</a>
-                                    <?php else: ?>
-                                        <a href="toggle_user.php?id=<?= $u['id'] ?>&action=activate" class="btn btn-sm btn-success">Activer</a>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
+            <table class="table table-bordered table-hover mt-3">
+            <thead class="table-secondary">
+                <tr>
+                    <th>Nom</th>
+                    <th>Email</th>
+                    <th>Peut définir seuil</th>
+                    <th>Peut contrôler vanne</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($u = $users->fetch_assoc()): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($u['nom']) ?></td>
+                        <td><?= htmlspecialchars($u['mail']) ?></td>
+                        <td><?= $u['can_set_seuil'] ? 'Oui' : 'Non' ?></td>
+                        <td><?= $u['can_control_valve'] ? 'Oui' : 'Non' ?></td>
+                        <td><?= $u['is_active'] ? '<span class="text-success">Actif</span>' : '<span class="text-danger">Inactif</span>' ?></td>
+                        <td>
+                            
+                            <a href="edit_user.php?id=<?= $u['id'] ?>" class="btn btn-sm btn-warning">Modifier</a>
+                            <a href="delete_user.php?id=<?= $u['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer cet utilisateur ?')">Supprimer</a>
+                            <?php if ($u['is_active']): ?>
+                                <a href="toggle_user.php?id=<?= $u['id'] ?>&action=deactivate" class="btn btn-sm btn-secondary">Désactiver</a>
+                            <?php else: ?>
+                                <a href="toggle_user.php?id=<?= $u['id'] ?>&action=activate" class="btn btn-sm btn-success">Activer</a>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+
             </div>
         </div>
     </div>

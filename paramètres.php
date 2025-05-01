@@ -18,33 +18,41 @@ if (!$user) {
 
 $utilisateur_id = $_SESSION['user_id'];
 
-// Récupérer les autorisations
-$droits_stmt = $conn->prepare("SELECT can_set_seuil, can_control_valve, abonnement FROM utilisateur WHERE id = ?");
-$droits_stmt->bind_param("i", $utilisateur_id);
-$droits_stmt->execute();
-$droits_stmt->bind_result($can_set_seuil, $can_control_valve, $abonnement);
-$droits_stmt->fetch();
-$droits_stmt->close();
+// Récupération des infos utilisateur (nom et image)
+$query = $conn->prepare("SELECT nom, image, can_set_seuil, can_control_valve, abonnement FROM utilisateur WHERE id = ?");
+$query->bind_param("i", $utilisateur_id);
+$query->execute();
+$query->store_result();
+$query->bind_result($nom, $image, $can_set_seuil, $can_control_valve, $abonnement);
+$query->fetch();
+$query->close();
 
-// Récupérer le seuil global
-$seuil_query = "SELECT seuil FROM seuils WHERE id = 1";
-$seuil_result = $conn->query($seuil_query);
-$seuil_row = $seuil_result->fetch_assoc();
-$seuil = $seuil_row ? $seuil_row['seuil'] : 1000;
+if (!$nom) {
+    die("Utilisateur introuvable.");
+}
 
-// Récupérer le statut actuel de l'électrovanne
-$query_vanne = "SELECT statut FROM vanne_statut WHERE id = 1";
-$stmt_vanne = $conn->prepare($query_vanne);
-$stmt_vanne->execute();
-$stmt_vanne->bind_result($valveStatus);
-$stmt_vanne->fetch();
-$stmt_vanne->close();
+// Récupération du seuil
+$seuil_query = $conn->prepare("SELECT seuil FROM seuils WHERE utilisateur_id = ?");
+$seuil_query->bind_param("i", $utilisateur_id);
+$seuil_query->execute();
+$seuil_query->bind_result($seuil);
+$seuil_query->fetch();
+$seuil_query->close();
+if (!isset($seuil)) $seuil = 1000;
 
-// Traitement du formulaire pour mise à jour du seuil
+// Récupération du statut de l'électrovanne
+$query_vanne = $conn->prepare("SELECT statut FROM vanne_statut WHERE utilisateur_id = ?");
+$query_vanne->bind_param("i", $utilisateur_id);
+$query_vanne->execute();
+$query_vanne->bind_result($valveStatus);
+$query_vanne->fetch();
+$query_vanne->close();
+
+// Mise à jour du seuil
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $can_set_seuil && isset($_POST['flow-threshold'])) {
     $nouveau_seuil = $_POST['flow-threshold'];
-    $update_stmt = $conn->prepare("UPDATE seuils SET seuil = ? WHERE id = 1");
-    $update_stmt->bind_param("d", $nouveau_seuil);
+    $update_stmt = $conn->prepare("UPDATE seuils SET seuil = ? WHERE utilisateur_id = ?");
+    $update_stmt->bind_param("di", $nouveau_seuil, $utilisateur_id);
     $update_stmt->execute();
     $update_stmt->close();
 
@@ -53,7 +61,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $can_set_seuil && isset($_POST['flo
 }
 
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -187,7 +194,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $can_set_seuil && isset($_POST['flo
           <?php if ($can_set_seuil && $abonnement !== 'gratuit'): ?>
 
               <label for="flow-threshold" class="form-label">Modifier le seuil (L/mois)</label>
-              <input type="range" class="form-range" id="flow-threshold" name="flow-threshold" min="100" max="5000" step="50" value="<?= $seuil ?>" oninput="updateFlowValue(this.value)">
+              <input type="range" class="form-range" id="flow-threshold" name="flow-threshold" min="100" max="50000" step="200" value="<?= $seuil ?>" oninput="updateFlowValue(this.value)">
               <p class="mt-2">Valeur actuelle : <strong><span id="flow-value"><?= $seuil ?></span> L/mois</strong></p>
               <button type="submit" class="btn btn-primary mt-3">Mettre à jour</button>
               <?php elseif ($abonnement === 'gratuit'): ?>

@@ -12,7 +12,7 @@ try {
 }
 
 // Données fictives
-$utilisateur_id = $_SESSION['user_id'];
+$utilisateur_id = 3;
 $abonnement_id = 2; // Remplace par l'ID réel du plan
 $montant = 5000; // FCFA
 $transaction_id = uniqid('TEST_'); // ID unique fictif

@@ -29,6 +29,12 @@ try {
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($user) {
+            // Vérification si le compte est actif
+            if ($user['is_active'] != 1) {
+                echo "<script>alert('Votre compte est désactivé. Veuillez contacter l’administrateur.'); window.history.back();</script>";
+                exit;
+            }
+
             // Vérification du mot de passe
             if (password_verify($password, $user['password'])) {
                 // Enregistrement des informations dans la session

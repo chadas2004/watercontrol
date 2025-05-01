@@ -1,21 +1,37 @@
 <?php
-header('Content-Type: application/json'); // Indique que la réponse est JSON
+session_start();
+header('Content-Type: application/json');
+
+if (!isset($_SESSION['user_id'])) {
+    echo json_encode(["error" => "Utilisateur non connecté"]);
+    exit();
+}
+
+$utilisateur_id = $_SESSION['user_id'];
+
 $conn = new mysqli("localhost", "root", "", "watercontrol");
 
 if ($conn->connect_error) {
     die(json_encode(["error" => "Erreur de connexion à la base de données"]));
 }
 
-// Requête SQL pour récupérer la consommation mensuelle
+// Récupérer les 12 derniers mois de consommation de l'utilisateur
 $sql = "SELECT DATE_FORMAT(date_mesure, '%Y-%m') AS mois, SUM(debit) AS total_debit 
-        FROM capteurs GROUP BY mois ORDER BY mois DESC";
+        FROM capteurs 
+        WHERE utilisateur_id = ? 
+        AND date_mesure >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+        GROUP BY mois 
+        ORDER BY mois DESC";
 
-$result = $conn->query($sql);
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $utilisateur_id);
+$stmt->execute();
+$result = $stmt->get_result();
 
-$data = []; // Tableau pour stocker les résultats
+$data = [];
 while ($row = $result->fetch_assoc()) {
     $data[] = $row;
 }
 
-echo json_encode($data); // Convertit le tableau en JSON
+echo json_encode($data);
 ?>

@@ -6,15 +6,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $mail = $_POST['mail'];
     $password = $_POST['password'];
 
-    $stmt = $conn->prepare("SELECT id, password, role FROM utilisateur WHERE mail = ?");
+    // On récupère les infos de l'admin
+    $stmt = $conn->prepare("SELECT id, nom, password FROM admin WHERE mail = ?");
     $stmt->bind_param("s", $mail);
     $stmt->execute();
     $res = $stmt->get_result();
 
     if ($res->num_rows === 1) {
         $user = $res->fetch_assoc();
-        if (password_verify($password, $user['password']) && $user['role'] === 'admin') {
+
+        // Comparaison directe du mot de passe (non sécurisé)
+        if ($password === $user['password']) {
             $_SESSION['admin_id'] = $user['id'];
+            $_SESSION['admin_nom'] = $user['nom'];
             header("Location: dashboard_admin.php");
             exit;
         } else {
@@ -25,6 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
+
 
 <!-- HTML -->
 <!DOCTYPE html>
@@ -40,12 +45,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <?php if (isset($error)) echo "<div class='alert alert-danger'>$error</div>"; ?>
         <form method="POST" class="mt-4">
             <div class="mb-3">
-                <label>Email</label>
-                <input type="mail" name="mail" class="form-control" required>
+                <label for="mail">Email</label>
+                <input type="email" id="mail" name="mail" class="form-control" required>
             </div>
             <div class="mb-3">
-                <label>Mot de passe</label>
-                <input type="password" name="password" class="form-control" required>
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" class="form-control" required>
             </div>
             <button type="submit" class="btn btn-primary w-100">Se connecter</button>
         </form>

@@ -8,40 +8,60 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+$utilisateur_id = $_SESSION['user_id'];
+
 $conn = new mysqli("localhost", "root", "", "watercontrol");
 
 if ($conn->connect_error) {
     die(json_encode(["error" => "Erreur de connexion à la base de données"]));
 }
 
-// 1. Consommation du jour pour TOUS les utilisateurs
-$day_sql = "SELECT SUM(debit) AS consommationJour FROM capteurs WHERE DATE(date_mesure) = CURDATE()";
-$day_result = $conn->query($day_sql);
+// 1. Consommation du jour pour l'utilisateur connecté
+$day_sql = "SELECT SUM(debit) AS consommationJour 
+            FROM capteurs 
+            WHERE DATE(date_mesure) = CURDATE() 
+            AND utilisateur_id = ?";
+$day_stmt = $conn->prepare($day_sql);
+$day_stmt->bind_param("i", $utilisateur_id);
+$day_stmt->execute();
+$day_result = $day_stmt->get_result();
 $consommationJour = $day_result->fetch_assoc()['consommationJour'] ?? 0;
+$day_stmt->close();
 
-// 2. Consommation du mois en cours pour TOUS les utilisateurs
+// 2. Consommation du mois pour l'utilisateur connecté
 $month_sql = "SELECT SUM(debit) AS consommationMois 
               FROM capteurs 
               WHERE MONTH(date_mesure) = MONTH(CURDATE()) 
-              AND YEAR(date_mesure) = YEAR(CURDATE())";
-$month_result = $conn->query($month_sql);
+              AND YEAR(date_mesure) = YEAR(CURDATE()) 
+              AND utilisateur_id = ?";
+$month_stmt = $conn->prepare($month_sql);
+$month_stmt->bind_param("i", $utilisateur_id);
+$month_stmt->execute();
+$month_result = $month_stmt->get_result();
 $consommationMois = $month_result->fetch_assoc()['consommationMois'] ?? 0;
+$month_stmt->close();
 
-// 3. Historique des 7 derniers jours pour TOUS les utilisateurs
+// 3. Historique des 7 derniers jours pour l'utilisateur connecté
 $history_sql = "SELECT DATE(date_mesure) AS date, SUM(debit) AS conso
                 FROM capteurs 
                 WHERE date_mesure >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) 
-                GROUP BY date 
+                AND utilisateur_id = ?
+                GROUP BY DATE(date_mesure) 
                 ORDER BY date ASC";
-$history_result = $conn->query($history_sql);
+$history_stmt = $conn->prepare($history_sql);
+$history_stmt->bind_param("i", $utilisateur_id);
+$history_stmt->execute();
+$history_result = $history_stmt->get_result();
 
 $historique = [];
 while ($row = $history_result->fetch_assoc()) {
     $historique[] = $row;
 }
+$history_stmt->close();
 
-// 4. Récupère le seuil du premier utilisateur (utilisateur_id le plus bas)
-$seuil_stmt = $conn->prepare("SELECT seuil FROM seuils ORDER BY utilisateur_id ASC LIMIT 1");
+// 4. Seuil pour cet utilisateur
+$seuil_stmt = $conn->prepare("SELECT seuil FROM seuils WHERE utilisateur_id = ?");
+$seuil_stmt->bind_param("i", $utilisateur_id);
 $seuil_stmt->execute();
 $result = $seuil_stmt->get_result();
 $seuil = $result->fetch_assoc()['seuil'] ?? 0;
