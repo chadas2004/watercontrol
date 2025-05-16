@@ -1,0 +1,9 @@
+Erreur : Transaction sans URL.
+Erreur : Transaction sans URL.
+Erreur FedaPay : Erreur d'authentification.
+Erreur : Transaction sans URL.
+Erreur : Transaction sans URL.
+Erreur : Transaction sans URL.
+Erreur : Transaction sans URL.
+Erreur : Transaction sans URL.
+Erreur : Transaction sans URL.

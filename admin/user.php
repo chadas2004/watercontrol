@@ -141,9 +141,9 @@ $result = $conn->query($sql);
     <h4><i class="fa fa-tint"></i> WaterControl</h4>
     <a href="dashboard_admin.php" class="active"><i class="fa fa-tachometer"></i> Tableau de bord</a>
     <a href="user.php"><i class="fa fa-users"></i> Utilisateurs</a>
-    <a href="settings.php"><i class="fa fa-cogs"></i> Paramètres</a>
-    <a href="logout.php"><i class="fa fa-sign-out"></i> Déconnexion</a>
-</div>
+    <a href="message.php"><i class="fa fa-envelope"></i> Messages</a>
+    <a href="logout.php" onclick="return confirmLogout();"><i class="fa fa-sign-out"></i> Déconnexion</a>
+    </div>
 
 
 
@@ -233,11 +233,16 @@ $result = $conn->query($sql);
 </script>
 
 <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('active');
-        }
-    </script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('active');
+    }
+
+    function confirmLogout() {
+        return confirm("Êtes-vous sûr de vouloir vous déconnecter ?");
+    }
+</script>
+
 
 
 </body>

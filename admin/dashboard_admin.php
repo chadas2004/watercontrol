@@ -36,9 +36,18 @@ while ($row = $monthly_result->fetch_assoc()) {
 }
 
 // Recherche utilisateur
-$search = isset($_GET['search']) ? $_GET['search'] : '';
-$search_condition = $search ? "AND (nom LIKE '%$search%' OR mail LIKE '%$search%')" : '';
-$users = $conn->query("SELECT id, nom, mail,  can_set_seuil, can_control_valve, is_active FROM utilisateur $search_condition");
+$search = isset($_GET['search']) ? $conn->real_escape_string($_GET['search']) : '';
+
+if ($search) {
+    $query = "SELECT id, nom, mail, can_set_seuil, can_control_valve, is_active 
+              FROM utilisateur 
+              WHERE nom LIKE '%$search%' OR mail LIKE '%$search%'";
+} else {
+    $query = "SELECT id, nom, mail, can_set_seuil, can_control_valve, is_active FROM utilisateur";
+}
+
+$users = $conn->query($query);
+
 ?>
 
 <!DOCTYPE html>
@@ -139,9 +148,9 @@ $users = $conn->query("SELECT id, nom, mail,  can_set_seuil, can_control_valve, 
     <h4><i class="fa fa-tint"></i> WaterControl</h4>
     <a href="dashboard_admin.php" class="active"><i class="fa fa-tachometer"></i> Tableau de bord</a>
     <a href="user.php"><i class="fa fa-users"></i> Utilisateurs</a>
-    <a href="settings.php"><i class="fa fa-cogs"></i> Paramètres</a>
-    <a href="logout.php"><i class="fa fa-sign-out"></i> Déconnexion</a>
-</div>
+    <a href="message.php"><i class="fa fa-envelope"></i> Messages</a>
+    <a href="logout.php" onclick="return confirmLogout();"><i class="fa fa-sign-out"></i> Déconnexion</a>
+    </div>
 
 <!-- Contenu principal -->
 <div class="content">
@@ -322,11 +331,16 @@ $users = $conn->query("SELECT id, nom, mail,  can_set_seuil, can_control_valve, 
 </script>
 
 <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('active');
-        }
-    </script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('active');
+    }
+
+    function confirmLogout() {
+        return confirm("Êtes-vous sûr de vouloir vous déconnecter ?");
+    }
+</script>
+
 
 
 </body>

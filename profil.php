@@ -205,5 +205,12 @@ if (!$user) {
       }
     }
   </script>
+
+<script>
+  // Actualiser la page toutes les 10 minutes (600000 ms)
+  setInterval(() => {
+    location.reload();
+  }, 600000);
+</script>
 </body>
 </html>

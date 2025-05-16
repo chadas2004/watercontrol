@@ -32,6 +32,9 @@ if (!defined('CURL_HTTP_VERSION_2TLS')) {
 class CurlClient implements ClientInterface
 {
     private static $instance;
+      /** @var \FedaPay\Util\RandomGenerator */
+      protected $randomGenerator;  // Déclare la propriété ici
+
 
     public static function instance()
     {

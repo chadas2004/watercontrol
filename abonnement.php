@@ -134,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['plan_id'])) {
                     }
 
                     const widget = FedaPay.init({
-                        public_key: 'pk_live_mmzuO6aBLrXZAvzAOYAETwbh',
+                        public_key: 'pk_sandbox_3CwfFvBCzQHvx99YcBij4eMw',
                         transaction: {
                             amount: selectedPlan.prix,
                             description: selectedPlan.nom,
@@ -144,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['plan_id'])) {
                         },
                         onSuccess: function(transaction) {
                             alert('Paiement réussi ! ID : ' + transaction.id);
-                            window.location = 'paiements.php?pay=' + transaction.id;
+                            window.location = 'paiement.php?pay=' + transaction.id;
                         },
                         onError: function(error) {
                             alert('Erreur : ' + error.message);

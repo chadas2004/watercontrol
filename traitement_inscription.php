@@ -1,37 +1,34 @@
-<?php 
-// Information de connexion à la base de données
+<?php
+// Connexion à la base de données
 $servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "watercontrol";
 
+// PHPMailer
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+require 'vendor/autoload.php';
+
 try {
-    // Création d'une connexion PDO
+    // Connexion PDO
     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-    
-    // Configuration des options PDO
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    echo "CONNEXION ÉTABLIE <br>";
 
     // Récupération des données du formulaire
     $nom = $_POST['nom'];
+    $prenoms = $_POST['prenoms'];
+    $telephone = $_POST['telephone'];
     $adresse = $_POST['adresse'];
     $mail = $_POST['mail'];
-    $password = $_POST['password'];
-    $confirmpass = $_POST['confirmpass'];
 
-    // Vérifications de base
-    if (empty($nom) || empty($adresse) || empty($mail) || empty($password) || empty($confirmpass)) {
+    // Vérifications
+    if (empty($nom) || empty($prenoms) || empty($telephone) || empty($adresse) || empty($mail)) {
         echo "Tous les champs sont obligatoires.";
         exit;
     }
 
-    if ($password !== $confirmpass) {
-        echo "Le mot de passe et la confirmation ne correspondent pas.";
-        exit;
-    }
-
-    // Vérifie si l'email existe déjà
+    // Vérification email existant
     $sql = "SELECT COUNT(*) FROM utilisateur WHERE mail = ?";
     $stmt = $conn->prepare($sql);
     $stmt->execute([$mail]);
@@ -40,52 +37,70 @@ try {
     if ($count > 0) {
         echo "<script>
             alert('Cet email est déjà utilisé. Veuillez en choisir un autre.');
-            window.location.href = 'index.html';
+            window.location.href = 'index.php';
         </script>";
         exit;
     }
 
-   
-
-    // Définir les valeurs par défaut pour les utilisateur
+    // Valeurs par défaut
     $can_set_seuil = 1;
     $can_control_valve = 1;
-    $is_active = 1;
-    $image = ''; // valeur par défaut
+    $is_active = 0;
+    $image = '';
+    $code_connexion = 'WAG' . str_pad(random_int(0, 999999999), 9, '0', STR_PAD_LEFT);
 
-    // Hash du mot de passe
-    $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
-    // Insertion du nouvel utilisateur avec rôles et permissions
-    $sql = "INSERT INTO utilisateur (nom, adresse, mail, password, image, can_set_seuil, can_control_valve, is_active)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    // Insertion utilisateur
+    $sql = "INSERT INTO utilisateur (nom, prenoms, telephone, adresse, mail, code_connexion, image, can_set_seuil, can_control_valve, is_active)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->execute([$nom, $adresse, $mail, $passwordHash, $image, $can_set_seuil, $can_control_valve, $is_active]);
+    $stmt->execute([$nom, $prenoms, $telephone, $adresse, $mail, $code_connexion, $image, $can_set_seuil, $can_control_valve, $is_active]);
 
-    // Récupérer l'ID du nouvel utilisateur
     $utilisateur_id = $conn->lastInsertId();
-    echo "Nouvel utilisateur ID : " . $utilisateur_id;
 
-    // Insertion dans la table seuils pour tous les utilisateurs
-    $seuil_defaut = 1000; // valeur par défaut du seuil
+    // Insertion seuil par défaut
+    $seuil_defaut = 1000;
     $stmt_seuil = $conn->prepare("INSERT INTO seuils (seuil, utilisateur_id) VALUES (?, ?)");
     $stmt_seuil->execute([$seuil_defaut, $utilisateur_id]);
 
-    // Insertion dans la table vanne_statut pour tous les utilisateurs
-    $vanne_statut = 1; // 1 = ouverte, 0 = fermée (selon ta logique)
+    // Insertion statut vanne
+    $vanne_statut = 1;
     $stmt_vanne = $conn->prepare("INSERT INTO vanne_statut (statut, utilisateur_id) VALUES (?, ?)");
     $stmt_vanne->execute([$vanne_statut, $utilisateur_id]);
 
-    // Redirection après réussite
-    echo "<script>
-        alert('Inscription réussie ! Vous pouvez maintenant vous connecter.');
-        window.location.href = 'index.html';
-    </script>";
+    // Envoi du mail avec le code de connexion
+    $mailer = new PHPMailer(true);
+
+    try {
+        $mailer->isSMTP();
+        $mailer->Host = 'smtp.gmail.com';
+        $mailer->SMTPAuth = true;
+        $mailer->Username = 'chadasglele@gmail.com';
+        $mailer->Password = 'frtq rxax bnvt fdhw'; // mot de passe d'application Gmail
+        $mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mailer->Port = 587;
+
+        $mailer->setFrom('chadasglele@gmail.com', 'WaterControl');
+        $mailer->addAddress($mail, "$nom $prenoms");
+        $mailer->isHTML(true);
+        $mailer->Subject = 'Votre code de connexion';
+        $mailer->Body = "Bonjour $nom $prenoms,<br><br>Votre code de connexion est : <b>$code_connexion</b><br>Veuillez le conserver précieusement.";
+
+        $mailer->send();
+
+        echo "<script>
+            alert('Inscription réussie ! Un email contenant votre code de connexion a été envoyé.');
+            window.location.href = 'index.php';
+        </script>";
+        exit;
+
+    } catch (Exception $e) {
+        echo "Inscription réussie, mais l'envoi de l'email a échoué. Erreur : {$mailer->ErrorInfo}";
+    }
 
 } catch (PDOException $e) {
     echo "Erreur lors de la connexion à la base de données : " . $e->getMessage();
 }
 
-// Fermeture de la connexion
 $conn = null;
 ?>

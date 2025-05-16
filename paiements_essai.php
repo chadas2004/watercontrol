@@ -1,54 +1,65 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id'])) {
-    die("Utilisateur non connecté.");
-}
 
-try {
-    $pdo = new PDO('mysql:host=localhost;dbname=watercontrol', 'root', '');
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Erreur DB : " . $e->getMessage());
-}
-
-// Données fictives
-$utilisateur_id = 3;
-$abonnement_id = 2; // Remplace par l'ID réel du plan
-$montant = 5000; // FCFA
-$transaction_id = uniqid('TEST_'); // ID unique fictif
-$date_paiement = date('Y-m-d H:i:s');
-$date_expiration = date('Y-m-d H:i:s', strtotime('+30 days'));
-$statut = 'réussi';
-
-// Insertion dans la table paiements
-$stmt = $pdo->prepare("INSERT INTO paiements 
-    (utilisateur_id, abonnement_id, montant, transaction_id, date_paiement, date_expiration, statut)
-    VALUES (?, ?, ?, ?, ?, ?, ?)");
-$stmt->execute([
-    $utilisateur_id,
-    $abonnement_id,
-    $montant,
-    $transaction_id,
-    $date_paiement,
-    $date_expiration,
-    $statut
-]);
-
-// Mise à jour des informations de l'utilisateur
-$updateUser = $pdo->prepare("UPDATE utilisateur SET
-    abonnement = :abonnement,
-    date_abonnement = NOW(),
-    date_expiration = :date_expiration,
-    is_active = 1
-    WHERE id = :id");
-
-$updateUser->execute([
-    ':abonnement' => $abonnement_id, // Remplace par le nom réel de l'abonnement
-    ':date_expiration' => $date_expiration,
-    ':id' => $utilisateur_id
-]);
-
-echo "✅ Paiement test inséré avec succès et utilisateur mis à jour !<br>";
-echo "Montant : " . number_format($montant, 0, ',', ' ') . " FCFA<br>";
-echo "Abonnement activé jusqu'au : " . date('d/m/Y', strtotime($date_expiration));
+// Exemple de données simulées pour test
+$_SESSION['selected_plan'] = [
+    'id' => 1,
+    'nom' => 'Test Plan',
+    'description' => 'Plan de test pour FedaPay',
+    'prix' => 500
+];
 ?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Paiement FedaPay</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Test Paiement avec FedaPay (Mode Sandbox)</h2>
+        <div class="card shadow p-4">
+            <h4 class="mb-3">Informations du plan</h4>
+            <p><strong>Nom :</strong> <?= $_SESSION['selected_plan']['nom']; ?></p>
+            <p><strong>Description :</strong> <?= $_SESSION['selected_plan']['description']; ?></p>
+            <p><strong>Prix :</strong> <?= number_format($_SESSION['selected_plan']['prix'], 0, ',', ' '); ?> FCFA</p>
+            <button id="pay-button" class="btn btn-success">Payer maintenant (Test)</button>
+        </div>
+    </div>
+    <script src="https://cdn.fedapay.com/checkout.js?v=1.1.7"></script>
+<script>
+const payButton = document.getElementById('pay-button');
+
+payButton.addEventListener('click', function () {
+    const widget = FedaPay.init({
+        public_key: 'pk_sandbox_3CwfFvBCzQHvx99YcBij4eMw', // Mets ta vraie clé ici
+        transaction: {
+            amount: 500,
+            description: "Test FedaPay",
+            currency: { iso: 'XOF' },
+            customer: {
+                firstname: "Jean",
+                lastname: "Test",
+                email: "test@example.com",
+                phone_number: {
+                    number: "97979797",
+                    country: "BJ"
+                }
+            }
+        },
+        onSuccess: function (transaction) {
+            alert('✅ Paiement réussi : ' + transaction.id);
+        },
+        onError: function (error) {
+            alert("❌ Paiement échoué : " + error.message);
+            console.error(error);
+        }
+    });
+    widget.open();
+});
+</script>
+
+</body>
+</html>

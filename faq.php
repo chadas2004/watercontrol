@@ -251,6 +251,12 @@ $activePage = basename($_SERVER['PHP_SELF']);
       }
     }
   </script>
+  <script>
+  // Actualiser la page toutes les 10 minutes (600000 ms)
+  setInterval(() => {
+    location.reload();
+  }, 600000);
+</script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>

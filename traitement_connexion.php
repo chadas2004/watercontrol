@@ -14,10 +14,10 @@ try {
     // Vérification si les champs sont bien envoyés
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $nom = $_POST['nom'];
-        $password = $_POST['password'];
+        $code_connexion = $_POST['code_connexion'];
 
         // Vérification si les champs sont remplis
-        if (empty($nom) || empty($password)) {
+        if (empty($nom) || empty($code_connexion)) {
             echo "<script>alert('Tous les champs sont obligatoires.'); window.history.back();</script>";
             exit;
         }
@@ -35,8 +35,8 @@ try {
                 exit;
             }
 
-            // Vérification du mot de passe
-            if (password_verify($password, $user['password'])) {
+            // Vérification du code de connexion
+            if ($code_connexion == $user['code_connexion']) {
                 // Enregistrement des informations dans la session
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_nom'] = $user['nom'];
@@ -47,7 +47,7 @@ try {
                       </script>";
                 exit;
             } else {
-                echo "<script>alert('Mot de passe incorrect.'); window.history.back();</script>";
+                echo "<script>alert('Code de connexion incorrect.'); window.history.back();</script>";
                 exit;
             }
         } else {

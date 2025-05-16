@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'config.php';
+
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.html");
     exit();
@@ -39,7 +40,6 @@ if (!$user) {
       width: 250px;
       z-index: 1040;
     }
-
     body {
         font-family: Arial, sans-serif;
     }
@@ -117,8 +117,7 @@ if (!$user) {
       <li class="nav-item mb-2"><a href="paramètres.php" class="nav-link"><i class="bi bi-gear"></i> Paramètres</a></li>
       <li class="nav-item mb-2"><a href="profil.php" class="nav-link"><i class="bi bi-person-circle"></i> Profil</a></li>
       <li class="nav-item mb-2"><a href="faq.php" class="nav-link"><i class="bi bi-question-circle"></i> FAQs</a></li>
-      <li class="nav-item mb-2"><a href="abonnement.php" class="nav-link"><i class="bi bi-question-circle"></i> Abonnement</a></li>
-
+      <li class="nav-item mb-2"><a href="contact.php" class="nav-link"><i class="bi bi-telephone"></i> Contactez-nous</a></li>
     </ul>
   </nav>
 
@@ -134,7 +133,7 @@ if (!$user) {
         <div class="position-relative">
           <span class="fw-semibold"><?php echo htmlspecialchars($user['nom']); ?></span>
           <div class="dropdown-menu shadow rounded" id="profileMenu">
-            <a href="#" class="dropdown-item" onclick="confirmLogout(event)">Déconnexion</a>
+            <a href="logout.php" class="dropdown-item">Déconnexion</a>
           </div>
         </div>
       </div>
@@ -164,14 +163,13 @@ if (!$user) {
     </main>
   </div>
 
-  <!-- Alerte avec contrôle -->
+  <!-- Alerte de seuil -->
   <div id="alert" class="alert alert-danger text-center fw-bold clignotant fixed-alert d-none" role="alert">
     ⚠️ Attention ! Vous avez dépassé le seuil de consommation !<br>
     <button class="btn btn-sm btn-warning mt-2 me-2" onclick="stopAlertTemporarily()">Arrêter pendant 1 min</button>
     <button class="btn btn-sm btn-danger mt-2" onclick="stopAlertPermanently()">Désactiver l'alerte</button>
   </div>
 
-  <!-- JS -->
   <script>
     const sidebar = document.getElementById("sidebar");
     const overlay = document.getElementById("overlay");
@@ -186,82 +184,81 @@ if (!$user) {
       overlay.classList.remove("show");
     });
 
-    fetch("get_statistiques.php")
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById("consommationJour").innerText = data.consommationJour + " L";
-
-        const labels = data.historique.map(row => row.date);
-        const valeurs = data.historique.map(row => row.conso);
-
-        new Chart(document.getElementById("graph"), {
-          type: 'line',
-          data: {
-            labels: labels,
-            datasets: [{
-              label: 'Consommation (L)',
-              data: valeurs,
-              borderColor: '#0d6efd',
-              backgroundColor: 'rgba(64, 96, 166, 0.2)',
-              fill: true
-            }]
-          }
-        });
-
-        const now = new Date().getTime();
-        const alertStopUntil = parseInt(localStorage.getItem("alertStopUntil")) || 0;
-        const alertDisabled = localStorage.getItem("alertDisabled") === "true";
-
-        if (data.alerte && !alertDisabled && now > alertStopUntil) {
-          const alertElement = document.getElementById("alert");
-          alertElement.classList.remove("d-none");
-
-          const audio = new Audio('beat.mp3');
-          audio.loop = true;
-          audio.play();
-
-          const message = "Attention, vous avez dépassé le seuil de consommation d'eau.";
-          const utterance = new SpeechSynthesisUtterance(message);
-          utterance.lang = "fr-FR";
-          window.speechSynthesis.speak(utterance);
-
-          setInterval(() => {
-            window.speechSynthesis.speak(new SpeechSynthesisUtterance(message));
-          }, 10000);
-        }
-      });
+    // Gestion de l’alerte
+    let alertAudio = new Audio('beat.mp3');
+    alertAudio.loop = true;
 
     function stopAlertTemporarily() {
-      const now = new Date();
-      localStorage.setItem("alertStopUntil", now.getTime() + 1 * 60 * 1000);
-      location.reload();
+      const duration = 60 * 1000;
+      localStorage.setItem("alertStopUntil", Date.now() + duration);
+      document.getElementById("alert").classList.add("d-none");
+      alertAudio.pause();
+      window.speechSynthesis.cancel();
     }
 
     function stopAlertPermanently() {
       localStorage.setItem("alertDisabled", "true");
-      location.reload();
+      document.getElementById("alert").classList.add("d-none");
+      alertAudio.pause();
+      window.speechSynthesis.cancel();
     }
 
-    const profileToggle = document.getElementById("profileToggle");
-    const profileMenu = document.getElementById("profileMenu");
+    function verifierConsommationEtAlerte() {
+      fetch("get_statistiques.php")
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById("consommationJour").innerText = data.consommationJour + " L";
 
-    profileToggle.addEventListener("click", (e) => {
-      e.stopPropagation();
-      profileMenu.style.display = profileMenu.style.display === "block" ? "none" : "block";
-    });
+          const labels = data.historique.map(row => row.date);
+          const valeurs = data.historique.map(row => row.conso);
 
-    document.addEventListener("click", (e) => {
-      if (!profileMenu.contains(e.target)) {
-        profileMenu.style.display = "none";
-      }
-    });
+          new Chart(document.getElementById("graph"), {
+            type: 'line',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: 'Consommation (L)',
+                data: valeurs,
+                borderColor: '#0d6efd',
+                backgroundColor: 'rgba(64, 96, 166, 0.2)',
+                fill: true
+              }]
+            }
+          });
 
-    function confirmLogout(event) {
-      event.preventDefault();
-      if (confirm("Êtes-vous sûr de vouloir vous déconnecter ?")) {
-        window.location.href = "logout.php";
-      }
+          const now = Date.now();
+          const alertStopUntil = parseInt(localStorage.getItem("alertStopUntil")) || 0;
+          const alertDisabled = localStorage.getItem("alertDisabled") === "true";
+
+          if (data.alerte && !alertDisabled && now > alertStopUntil) {
+            const alertElement = document.getElementById("alert");
+            alertElement.classList.remove("d-none");
+            alertAudio.play();
+
+            const message = "Attention, vous avez dépassé le seuil de consommation d'eau.";
+            const utterance = new SpeechSynthesisUtterance(message);
+            utterance.lang = "fr-FR";
+            window.speechSynthesis.speak(utterance);
+
+            setInterval(() => {
+              if (!alertDisabled && Date.now() > alertStopUntil) {
+                window.speechSynthesis.speak(new SpeechSynthesisUtterance(message));
+              }
+            }, 10000);
+          }
+        });
     }
+
+    verifierConsommationEtAlerte();
+    setInterval(verifierConsommationEtAlerte, 600000);
   </script>
+
+<script>
+  // Actualiser la page toutes les 10 minutes (600000 ms)
+  setInterval(() => {
+    location.reload();
+  }, 600000);
+</script>
+
 </body>
 </html>
