@@ -46,7 +46,7 @@ if (!$user) {
         font-family: Arial, sans-serif;
     }
     .sidebar a { color: white; text-decoration: none; }
-    .sidebar a:hover { color: rgb(234, 237, 242); }
+    .sidebar a:hover, .sidebar a.active { color: rgb(234, 237, 242); font-weight: bold; }
     .sidebar i { color: rgb(64, 14, 244); margin-right: 15px; }
     .overlay {
       position: fixed;
@@ -95,9 +95,19 @@ if (!$user) {
       z-index: 1050;
       min-width: 160px;
     }
+    .profile-dropdown .dropdown-menu.show {
+      display: block;
+    }
     .profile-dropdown .dropdown-menu .dropdown-item:hover {
       background-color: #f8f9fa;
     }
+
+    .logo {
+  display: block;
+  margin: 0 auto 15px;
+  width: 70px; /* ajustez selon votre besoin */
+  height: 90px;
+}
   </style>
 </head>
 
@@ -106,13 +116,15 @@ if (!$user) {
 
   <!-- Sidebar -->
   <nav id="sidebar" class="sidebar py-4 px-3">
-    <h2 class="text-center text-white mb-4">WaterControl</h2>
+  <img src="logo/logo1.png" alt="Logo WaterControl" class="logo">
     <ul class="nav flex-column">
       <li class="nav-item mb-2"><a href="accueil.php" class="nav-link"><i class="bi bi-house"></i> Accueil</a></li>
       <li class="nav-item mb-2"><a href="historique.php" class="nav-link"><i class="bi bi-clock-history"></i> Historique</a></li>
       <li class="nav-item mb-2"><a href="paramètres.php" class="nav-link"><i class="bi bi-gear"></i> Paramètres</a></li>
       <li class="nav-item mb-2"><a href="profil.php" class="nav-link"><i class="bi bi-person-circle"></i> Profil</a></li>
       <li class="nav-item mb-2"><a href="faq.php" class="nav-link"><i class="bi bi-question-circle"></i> FAQs</a></li>
+      <li class="nav-item mb-2"><a href="contact.php" class="nav-link"><i class="bi bi-telephone"></i> Contactez-nous</a></li>
+
     </ul>
   </nav>
 

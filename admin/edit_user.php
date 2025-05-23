@@ -118,6 +118,14 @@ if (isset($_GET['id'])) {
             color: #000;
             z-index: 1100;
         }
+
+        .logo {
+  display: block;
+  margin: 0 auto 15px;
+  width: 70px; /* ajustez selon votre besoin */
+  height: 90px;
+}
+
     </style>
 </head>
 <body>
@@ -125,7 +133,7 @@ if (isset($_GET['id'])) {
     <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
-    <h4><i class="fa fa-tint"></i> WaterControl</h4>
+<img src="logo.png" alt="Logo WaterControl" class="logo">
     <a href="dashboard_admin.php" class="active"><i class="fa fa-tachometer"></i> Tableau de bord</a>
     <a href="user.php"><i class="fa fa-users"></i> Utilisateurs</a>
     <a href="message.php"><i class="fa fa-envelope"></i> Messages</a>

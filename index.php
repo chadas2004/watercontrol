@@ -133,7 +133,7 @@
           <div class="input-box">
             <i class="fas fa-user"></i>
             <input type="text" name="nom" id="nom" required placeholder=" " />
-            <label for="nom">Nom complet</label>
+            <label for="nom">Nom</label>
           </div>
       
           <div class="input-box">

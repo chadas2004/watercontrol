@@ -136,6 +136,14 @@ $users = $conn->query($query);
             color: #000;
             z-index: 1100;
         }
+
+        .logo {
+  display: block;
+  margin: 0 auto 15px;
+  width: 70px; /* ajustez selon votre besoin */
+  height: 90px;
+}
+
     </style>
 </head>
 <body>
@@ -145,8 +153,8 @@ $users = $conn->query($query);
 
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
-    <h4><i class="fa fa-tint"></i> WaterControl</h4>
-    <a href="dashboard_admin.php" class="active"><i class="fa fa-tachometer"></i> Tableau de bord</a>
+<img src="logo.png" alt="Logo WaterControl" class="logo">
+<a href="dashboard_admin.php" class="active"><i class="fa fa-tachometer"></i> Tableau de bord</a>
     <a href="user.php"><i class="fa fa-users"></i> Utilisateurs</a>
     <a href="message.php"><i class="fa fa-envelope"></i> Messages</a>
     <a href="logout.php" onclick="return confirmLogout();"><i class="fa fa-sign-out"></i> Déconnexion</a>

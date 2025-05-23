@@ -102,6 +102,13 @@ $activePage = basename($_SERVER['PHP_SELF']);
     .profile-dropdown .dropdown-item:hover {
       background-color: #f8f9fa;
     }
+
+    .logo {
+  display: block;
+  margin: 0 auto 15px;
+  width: 70px; /* ajustez selon votre besoin */
+  height: 90px;
+}
   </style>
 </head>
 
@@ -110,33 +117,35 @@ $activePage = basename($_SERVER['PHP_SELF']);
 
   <!-- Sidebar -->
   <nav id="sidebar" class="sidebar py-4 px-3">
-    <h2 class="text-center text-white mb-4">WaterControl</h2>
+  <img src="logo/logo1.png" alt="Logo WaterControl" class="logo">
     <ul class="nav flex-column">
       <li class="nav-item mb-2">
-        <a href="accueil.php" class="nav-link <?= ($activePage === 'accueil.php') ? 'active' : '' ?>">
+        <a href="accueil.php" class="nav-link">
           <i class="bi bi-house"></i> Accueil
         </a>
       </li>
       <li class="nav-item mb-2">
-        <a href="historique.php" class="nav-link <?= ($activePage === 'historique.php') ? 'active' : '' ?>">
+        <a href="historique.php" class="nav-link">
           <i class="bi bi-clock-history"></i> Historique
         </a>
       </li>
       <li class="nav-item mb-2">
-        <a href="paramètres.php" class="nav-link <?= ($activePage === 'paramètres.php') ? 'active' : '' ?>">
+        <a href="paramètres.php" class="nav-link ">
           <i class="bi bi-gear"></i> Paramètres
         </a>
       </li>
       <li class="nav-item mb-2">
-        <a href="profil.php" class="nav-link <?= ($activePage === 'profil.php') ? 'active' : '' ?>">
+        <a href="profil.php" class="nav-link ">
           <i class="bi bi-person-circle"></i> Profil
         </a>
       </li>
       <li class="nav-item mb-2">
-        <a href="faq.php" class="nav-link <?= ($activePage === 'faq.php') ? 'active' : '' ?>">
+        <a href="faq.php" class="nav-link ">
           <i class="bi bi-question-circle"></i> FAQs
         </a>
       </li>
+      <li class="nav-item mb-2"><a href="contact.php" class="nav-link"><i class="bi bi-telephone"></i> Contactez-nous</a></li>
+
     </ul>
   </nav>
 

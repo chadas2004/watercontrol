@@ -43,8 +43,15 @@ if (!$user) {
     body {
         font-family: Arial, sans-serif;
     }
+
+    .logo {
+  display: block;
+  margin: 0 auto 15px;
+  width: 70px; /* ajustez selon votre besoin */
+  height: 90px;
+}
     .sidebar a { color: white; text-decoration: none; }
-    .sidebar a:hover { color: rgb(234, 237, 242); }
+    .sidebar a:hover, .sidebar a.active { color: rgb(234, 237, 242); font-weight: bold; }
     .sidebar i { color: rgb(64, 14, 244); margin-right: 15px; }
     .overlay {
       position: fixed;
@@ -93,6 +100,9 @@ if (!$user) {
       z-index: 1050;
       min-width: 160px;
     }
+    .profile-dropdown .dropdown-menu.show {
+      display: block;
+    }
     .profile-dropdown .dropdown-menu .dropdown-item:hover {
       background-color: #f8f9fa;
     }
@@ -110,7 +120,7 @@ if (!$user) {
 
   <!-- Sidebar -->
   <nav id="sidebar" class="sidebar py-4 px-3">
-    <h2 class="text-center text-white mb-4">WaterControl</h2>
+  <img src="logo/logo1.png" alt="Logo WaterControl" class="logo">
     <ul class="nav flex-column">
       <li class="nav-item mb-2"><a href="accueil.php" class="nav-link"><i class="bi bi-house"></i> Accueil</a></li>
       <li class="nav-item mb-2"><a href="historique.php" class="nav-link"><i class="bi bi-clock-history"></i> Historique</a></li>
@@ -130,10 +140,10 @@ if (!$user) {
       </div>
       <div class="profile-dropdown d-flex align-items-center gap-2">
         <img src="uploaded_img/<?php echo !empty($user['image']) ? htmlspecialchars($user['image']) : 'avatar.jpg'; ?>" alt="Avatar" id="profileToggle" />
-        <div class="position-relative">
+                <div class="position-relative">
           <span class="fw-semibold"><?php echo htmlspecialchars($user['nom']); ?></span>
           <div class="dropdown-menu shadow rounded" id="profileMenu">
-            <a href="logout.php" class="dropdown-item">Déconnexion</a>
+          <a href="#" class="dropdown-item" onclick="confirmLogout(event)">Déconnexion</a>
           </div>
         </div>
       </div>
@@ -146,7 +156,7 @@ if (!$user) {
         <div class="col-md-6">
           <div class="card shadow-sm border-0 rounded-4 h-100">
             <div class="card-body d-flex flex-column justify-content-center align-items-center">
-              <h5 class="card-title text-primary">Consommation Aujourd'hui</h5>
+              <h5 class="card-title text-primary">Consommation du jour</h5>
               <p id="consommationJour" class="display-5 fw-bold text-info">Chargement...</p>
             </div>
           </div>

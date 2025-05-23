@@ -143,7 +143,7 @@
 
     <div class="input-box">
     <i class="fas fa-phone"></i>
-    <input type="tel" name="telephone" id="telephone" required placeholder="+2290195000000" 
+    <input type="tel" name="telephone" id="telephone" required placeholder=" " 
            pattern="\+22901[0-9]{8}"  
            title="Le numéro doit commencer par +22901 suivi de 8 chiffres." /> 
     <label for="telephone">Téléphone</label>
